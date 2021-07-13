@@ -1,0 +1,162 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Getting started with Snuba &#8212; Snuba 21.7.0.dev0 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Snuba Architecture Overview" href="architecture/overview.html" />
+    <link rel="prev" title="Features:" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="getting-started-with-snuba">
+<h1>Getting started with Snuba<a class="headerlink" href="#getting-started-with-snuba" title="Permalink to this headline">¶</a></h1>
+<p>This is a guide to quickly start Snuba up in the context of a Sentry
+development environment.</p>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<p>Snuba assumes:</p>
+<ol class="arabic simple">
+<li><p>A Clickhouse server endpoint at <code class="docutils literal notranslate"><span class="pre">CLICKHOUSE_HOST</span></code> (default <code class="docutils literal notranslate"><span class="pre">localhost</span></code>).</p></li>
+<li><p>A redis instance running at <code class="docutils literal notranslate"><span class="pre">REDIS_HOST</span></code> (default <code class="docutils literal notranslate"><span class="pre">localhost</span></code>). On port
+<cite>6379</cite></p></li>
+</ol>
+<p>A quick way to get these services running is to set up sentry, then use:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sentry</span> <span class="n">devservices</span> <span class="n">up</span> <span class="o">--</span><span class="n">exclude</span><span class="o">=</span><span class="n">snuba</span>
+</pre></div>
+</div>
+<p>Note that Snuba assumes that everything is running on UTC time. Otherwise
+you may experience issues with timezone mismatches.</p>
+</section>
+<section id="sentry-snuba">
+<h2>Sentry + Snuba<a class="headerlink" href="#sentry-snuba" title="Permalink to this headline">¶</a></h2>
+<p>Add/change the following lines in <code class="docutils literal notranslate"><span class="pre">~/.sentry/sentry.conf.py</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SENTRY_SEARCH</span> <span class="o">=</span> <span class="s1">&#39;sentry.search.snuba.EventsDatasetSnubaSearchBackend&#39;</span>
+<span class="n">SENTRY_TSDB</span> <span class="o">=</span> <span class="s1">&#39;sentry.tsdb.redissnuba.RedisSnubaTSDB&#39;</span>
+<span class="n">SENTRY_EVENTSTREAM</span> <span class="o">=</span> <span class="s1">&#39;sentry.eventstream.snuba.SnubaEventStream&#39;</span>
+</pre></div>
+</div>
+<p>Run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sentry</span> <span class="n">devservices</span> <span class="n">up</span>
+</pre></div>
+</div>
+<p>Access raw clickhouse client (similar to psql):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">exec</span> <span class="o">-</span><span class="n">it</span> <span class="n">sentry_clickhouse</span> <span class="n">clickhouse</span><span class="o">-</span><span class="n">client</span>
+</pre></div>
+</div>
+<p>Data is written into the table <cite>sentry_local</cite>: <cite>select count() from sentry_local;</cite></p>
+</section>
+<section id="settings">
+<h2>Settings<a class="headerlink" href="#settings" title="Permalink to this headline">¶</a></h2>
+<p>Settings are found in <code class="docutils literal notranslate"><span class="pre">settings.py</span></code></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CLUSTERS</span></code> : Provides the list of clusters and the hostname, port, and storage sets that should run on each cluster. Local vs distributed is also set per cluster.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">REDIS_HOST</span></code> : The host redis is running on.</p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/snuba.svg" alt="Logo"/>
+            </a></p>
+<h1 class="logo"><a href="index.html">Snuba</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started with Snuba</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture/overview.html">Snuba Architecture Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture/overview.html#snuba-within-a-sentry-deployment">Snuba within a Sentry Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture/datamodel.html">Snuba Data Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture/queryprocessing.html">Snuba Query Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="query/overview.html">Querying Snuba</a></li>
+<li class="toctree-l1"><a class="reference internal" href="language/snql.html">The SnQL query language</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migrations/modes.html">Snuba Migration Modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing/environment.html">Snuba development environment</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Features:</a></li>
+      <li>Next: <a href="architecture/overview.html" title="next chapter">Snuba Architecture Overview</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Sentry Team and Contributors.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/getstarted.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
